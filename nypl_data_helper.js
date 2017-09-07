@@ -43,7 +43,8 @@ NYPLDataHelper.prototype.getItems = function(query) {
 
 NYPLDataHelper.prototype.formatSearchResponse = function(response) {
 	console.log('Query from response : ' + response.nyplAPI.request.search_text );
-    var numResultString = _.template('There are ${numResults} of items in the public domain matching ${query}.')({
+	var ssmlBreak = "<speak><break time='0.5s' /></speak>"
+    var numResultString = _.template('I found ${numResults} items that match ${query}' + ssmlBreak)({
 
 	    numResults: response.nyplAPI.response.numResults,
 
@@ -54,11 +55,17 @@ NYPLDataHelper.prototype.formatSearchResponse = function(response) {
 	if (response.nyplAPI.response.result.length !== 0) {
 
         var firstFive = ""; 
-		for(var i=0;i<5;++i){
-          firstFive += response.nyplAPI.response.result[i].title + " which is a " + response.nyplAPI.response.result[i].typeOfResource + ".";
+        for(var i=0;i<5;++i){
+	      firstFive += ssmlBreak		
+	      
+	      if(i == 4){
+            firstFive += 'and'
+	      }	
+
+          firstFive += response.nyplAPI.response.result[i].title + ", which is a " + response.nyplAPI.response.result[i].typeOfResource;
 		}
 
-	    var template = _.template('These are the first five items. ${firstFiveString}')({
+	    var template = _.template('These are the first five items. ${firstFiveString}. I have added a card to the Alexa app with more information with these results')({
 
 	        firstFiveString: firstFive,
 
@@ -69,8 +76,17 @@ NYPLDataHelper.prototype.formatSearchResponse = function(response) {
 	} else {
 
 	    //no delay
-	    return numResultString + 'Please try searching something else.';
+	    return numResultString + 'Please try searching something else';
 	}
+};
+
+NYPLDataHelper.prototype.cardResponse = function(response){
+  return {
+  	  // Correct API call for images
+  	  smallImageUrl : "https://loc.gov/pictures/lcweb2/service/pnp/cph/3c00000/3c05000/3c05300/3c05379r.jpg",
+      largeImageUrl : "https://loc.gov/pictures/lcweb2/service/pnp/cph/3c00000/3c05000/3c05300/3c05379r.jpg"
+      //"https://images.nypl.org/index.php?id=1217236&t=w&download=1&suffix=510d47df-1f06-a3d9-e040-e00a18064a99.001"
+  }
 };
 
 
